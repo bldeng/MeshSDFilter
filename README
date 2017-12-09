@@ -20,17 +20,17 @@ Follow the following steps to compile the code:
 
 3) Run cmake to generate the build files inside the build folder, and compile the source code:
 
-    - On linux or mac, run the following commands within the build folder:
-    	$ cmake -DCMAKE_BUILD_TYPE=Release ..
-    	$ make
+- On linux or mac, run the following commands within the build folder:
+	$ cmake -DCMAKE_BUILD_TYPE=Release ..
+	$ make
     	
-	- On mac, the default Apple clang compiler does not support OpenMP. To enable OpenMP, first install the homebrew GCC:
-		$ brew install gcc
-	  This should install gcc 7, with compiler commands gcc-7 and g++7. Then run the following command within the build folder:
-	    $ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-7 -DCMAKE_CXX_COMPILER=g++-7 ..
-	    $ make
+- On mac, the default Apple clang compiler does not support OpenMP. To enable OpenMP, first install the homebrew GCC:
+	$ brew install gcc
+  This should install gcc 7, with compiler commands gcc-7 and g++7. Then run the following command within the build folder:
+  	$ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-7 -DCMAKE_CXX_COMPILER=g++-7 ..
+	$ make
 	    
-	- On windows, use the cmake GUI to generate a visual studio solution file, and build the solution.
+- On windows, use the cmake GUI to generate a visual studio solution file, and build the solution.
 
 4) Afterwards, there should be two exectuable files 'MeshSDFilter' and 'MeshDenoiser' generated.
 
@@ -38,16 +38,21 @@ Follow the following steps to compile the code:
 
 2. Usage
 
-	Use one of the following commands to filter or denoise a mesh:
-	
-		$ MeshSDFilter OPTION_FILE INPUT_MESH OUTPUT_MESH
-		$ MeshDenoiser OPTION_FILE INPUT_MESH OUTPUT_MESH
+Use one of the following commands to filter or denoise a mesh:
+	$ MeshSDFilter OPTION_FILE INPUT_MESH OUTPUT_MESH
+	$ MeshDenoiser OPTION_FILE INPUT_MESH OUTPUT_MESH
 			
-	- INPUT_MESH and OUTPUT_MESH are mesh files for input and result.
-	- OPTION_FILE is a file that specifies the parameters. Example files for filtering and denoising are provided in FilteringOptions.txt and DenoisingOptions.txt .
+- INPUT_MESH and OUTPUT_MESH are mesh files for input and result.
+- OPTION_FILE is a file that specifies the parameters. Example files for filtering and denoising are provided in FilteringOptions.txt and DenoisingOptions.txt .
 	
 
 
 3. License
 
-	The code is released under BSD 3-Clause License.
+The code is released under BSD 3-Clause License.
+
+
+
+4. Contact
+
+Feel free to contact Bailin Deng <bldeng@gmail.com> if you have any comments or questions.
