@@ -2,6 +2,12 @@ MeshSDFilter -- Static/Dynamics Filtering for Mesh Geometry
 ===========================================================
 
 
+This code implements the mesh normal filtering algorithm from the following paper:
+
+- Juyong Zhang, Bailin Deng, Yang Hong, Yue Peng, Wenjie Qin, Ligang Liu. Static/Dynamic Filtering for Mesh Geometry. arXiv:1712.03574.
+
+
+
 1. Compiling
 
 The code requires c++ compiplers with c++11 support. It has been tested on the following systems and compilers:
