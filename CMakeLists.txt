@@ -27,71 +27,83 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_definitions(/D_USE_MATH_DEFINES)
 endif()
 
-
-# Add the OpenMesh folder into include path
-include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/external")
-
-# OpenMesh library
-set(OPENMESH_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/OpenMesh/Core")
-file(GLOB_RECURSE OPENMESH_HEADERS "${OPENMESH_SOURCE_DIR}/*.hh" "${OPENMESH_SOURCE_DIR}/*.h")
-file(GLOB_RECURSE OPENMESH_SOURCES "${OPENMESH_SOURCE_DIR}/*.cc")
-add_library(OpenMesh STATIC ${OPENMESH_HEADERS} ${OPENMESH_SOURCES})
-add_definitions(-DOM_STATIC_BUILD)
-
-# Executable for filtering
-add_executable(MeshSDFilter
-	EigenTypes.h
-	MeshTypes.h
-	SDFilter.h
-	MeshNormalFilter.h
-	MeshSDFilter.cpp
-)
-
-# Executable for denoising
-add_executable(MeshDenoiser
-	EigenTypes.h
-	MeshTypes.h
-	SDFilter.h
-	MeshNormalFilter.h
-	MeshNormalDenoising.h
-	MeshDenoiser.cpp
-)
-
-
-# Detect Eigen3 in the external folder
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/external/eigen/Eigen/Dense)
-	message("Found user-provided Eigen.")
-	set(EIGEN3_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/eigen")
-	target_include_directories(MeshSDFilter SYSTEM PUBLIC "${EIGEN3_INCLUDE_DIR}")
-	target_include_directories(MeshDenoiser SYSTEM PUBLIC "${EIGEN3_INCLUDE_DIR}")
-else()
-	find_package(Eigen3 REQUIRED)
-	if(EIGEN3_FOUND)
-		message("Found system-installed Eigen")
-		target_include_directories(MeshSDFilter SYSTEM PUBLIC "${EIGEN3_INCLUDE_DIR}")
-		target_include_directories(MeshDenoiser SYSTEM PUBLIC "${EIGEN3_INCLUDE_DIR}")
-	endif()
-endif()
-
-
-# Linking
-target_link_libraries(MeshSDFilter OpenMesh)
-target_link_libraries(MeshDenoiser OpenMesh)
-
-
 # Detect OpenMP environment
 set(OPENMP ON CACHE BOOL "OpenMP")
 if(OPENMP)
   FIND_PACKAGE(OpenMP QUIET)
   if(OPENMP_FOUND)
       message("OpenMP found. OpenMP activated in release.")
-      target_compile_options(MeshSDFilter PUBLIC "$<$<CONFIG:RELEASE>:${OpenMP_CXX_FLAGS}>")
-      target_compile_definitions(MeshSDFilter PUBLIC "$<$<CONFIG:RELEASE>:USE_OPENMP>")
-      target_link_libraries(MeshSDFilter "$<$<CONFIG:RELEASE>:${OpenMP_CXX_FLAGS}>")
-      target_compile_options(MeshDenoiser PUBLIC "$<$<CONFIG:RELEASE>:${OpenMP_CXX_FLAGS}>")
-      target_compile_definitions(MeshDenoiser PUBLIC "$<$<CONFIG:RELEASE>:USE_OPENMP>")
-      target_link_libraries(MeshDenoiser "$<$<CONFIG:RELEASE>:${OpenMP_CXX_FLAGS}>")
+      add_definitions(-DUSE_OPENMP)
+
   else()
       message("OpenMP not found.")
   endif()
+endif()
+
+
+# Detect Eigen3 in the external folder
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/external/eigen/Eigen/Dense)
+  message("Found user-provided Eigen.")
+  set(EIGEN3_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/eigen")
+else()
+  find_package(Eigen3 REQUIRED)
+  if(EIGEN3_FOUND)
+    message("Found system-installed Eigen: ${EIGEN3_INCLUDE_DIR}")
+  endif()
+endif()
+
+
+# OpenMesh library
+set(OPENMESH_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/OpenMesh")
+file(GLOB_RECURSE OPENMESH_HEADERS "${OPENMESH_SOURCE_DIR}/Core/*.hh" "${OPENMESH_SOURCE_DIR}/Core/*.h" "${OPENMESH_SOURCE_DIR}/Tools/*.hh" "${OPENMESH_SOURCE_DIR}/Tools/*.h")
+file(GLOB_RECURSE OPENMESH_SOURCES "${OPENMESH_SOURCE_DIR}/Core/*.cc" "${OPENMESH_SOURCE_DIR}/Tools/*.cc")
+add_library(OpenMesh STATIC ${OPENMESH_HEADERS} ${OPENMESH_SOURCES})
+target_include_directories(OpenMesh PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/external")
+
+add_definitions(-DOM_STATIC_BUILD)
+
+add_library(MeshSDLibrary INTERFACE)
+target_include_directories(MeshSDLibrary INTERFACE
+                           ${CMAKE_CURRENT_SOURCE_DIR}
+                           ${EIGEN3_INCLUDE_DIR})
+target_link_libraries(MeshSDLibrary INTERFACE OpenMesh)
+
+
+# Executable for filtering
+add_executable(MeshSDFilter
+  EigenTypes.h
+  MeshTypes.h
+  SDFilter.h
+  MeshNormalFilter.h
+  MeshSDFilter.cpp
+)
+target_link_libraries(MeshSDFilter OpenMesh)
+target_include_directories(MeshSDFilter SYSTEM PUBLIC "${EIGEN3_INCLUDE_DIR}")
+
+
+# Executable for denoising
+add_executable(MeshDenoiser
+  EigenTypes.h
+  MeshTypes.h
+  SDFilter.h
+  MeshNormalFilter.h
+  MeshNormalDenoising.h
+  MeshDenoiser.cpp
+)
+target_link_libraries(MeshDenoiser OpenMesh)
+target_include_directories(MeshDenoiser SYSTEM PUBLIC "${EIGEN3_INCLUDE_DIR}")
+
+
+if(OPENMP_FOUND)
+  #target_compile_options(MeshSDLibrary PUBLIC "$<$<CONFIG:RELEASE>:${OpenMP_CXX_FLAGS}>")
+  #target_compile_definitions(MeshSDLibrary PUBLIC "$<$<CONFIG:RELEASE>:USE_OPENMP>")
+  #target_link_libraries(MeshSDLibrary "$<$<CONFIG:RELEASE>:${OpenMP_CXX_FLAGS}>")
+
+  target_compile_options(MeshSDFilter PUBLIC "$<$<CONFIG:RELEASE>:${OpenMP_CXX_FLAGS}>")
+  target_compile_definitions(MeshSDFilter PUBLIC "$<$<CONFIG:RELEASE>:USE_OPENMP>")
+  target_link_libraries(MeshSDFilter "$<$<CONFIG:RELEASE>:${OpenMP_CXX_FLAGS}>")
+
+  target_compile_options(MeshDenoiser PUBLIC "$<$<CONFIG:RELEASE>:${OpenMP_CXX_FLAGS}>")
+  target_compile_definitions(MeshDenoiser PUBLIC "$<$<CONFIG:RELEASE>:USE_OPENMP>")
+  target_link_libraries(MeshDenoiser "$<$<CONFIG:RELEASE>:${OpenMP_CXX_FLAGS}>")
 endif()
