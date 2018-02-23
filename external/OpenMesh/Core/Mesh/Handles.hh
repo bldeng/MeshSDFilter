@@ -73,8 +73,8 @@ public:
   /// Get the underlying index of this handle
   int idx() const { return idx_; }
 
-  /// The handle is valid iff the index is not equal to -1.
-  bool is_valid() const { return idx_ != -1; }
+  /// The handle is valid iff the index is not negative.
+  bool is_valid() const { return idx_ >= 0; }
 
   /// reset handle to be invalid
   void reset() { idx_=-1; }

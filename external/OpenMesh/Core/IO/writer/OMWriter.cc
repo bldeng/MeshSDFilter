@@ -318,7 +318,7 @@ bool _OMWriter_::write_binary(std::ostream& _os, BaseExporter& _be,
 
   // ---------- write face normals
 
-  if ( _be.has_face_normals() && _opt.check(Options::FaceNormal) )
+  if (_be.n_faces() && _be.has_face_normals() && _opt.check(Options::FaceNormal) )
   {
 #define NEW_STYLE 0
 #if NEW_STYLE
@@ -353,7 +353,7 @@ bool _OMWriter_::write_binary(std::ostream& _os, BaseExporter& _be,
 
   // ---------- write face color
 
-  if (_be.has_face_colors() && _opt.check( Options::FaceColor ))
+  if (_be.n_faces() && _be.has_face_colors() && _opt.check( Options::FaceColor ))
   {
 #define NEW_STYLE 0
 #if NEW_STYLE
@@ -429,6 +429,11 @@ bool _OMWriter_::write_binary(std::ostream& _os, BaseExporter& _be,
     bytes += store_binary_custom_chunk(_os, **prop,
 				       OMFormat::Chunk::Entity_Mesh, swap );
   }
+
+  memset(&chunk_header, 0, sizeof(chunk_header));
+  chunk_header.name_ = false;
+  chunk_header.entity_ = OMFormat::Chunk::Entity_Sentinel;
+  bytes += store(_os, chunk_header, swap);
 
   std::clog << "#bytes written: " << bytes << std::endl;
 

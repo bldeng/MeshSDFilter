@@ -136,9 +136,12 @@ PolyMeshT<Kernel>::calc_face_normal_impl(FaceHandle _fh, PointIs3DTag) const
     const Point a = this->point(*fv_it) - this->point(*fv_itn);
     const Point b = this->point(*fv_it) + this->point(*fv_itn);
 
-    n[0] += a[1] * b[2];
-    n[1] += a[2] * b[0];
-    n[2] += a[0] * b[1];
+
+    // Due to traits, the value types of normals and points can be different.
+    // Therefore we cast them here.
+    n[0] += static_cast<typename Normal::value_type>(a[1] * b[2]);
+    n[1] += static_cast<typename Normal::value_type>(a[2] * b[0]);
+    n[2] += static_cast<typename Normal::value_type>(a[0] * b[1]);
   }
 
   const typename vector_traits<Normal>::value_type norm = n.length();

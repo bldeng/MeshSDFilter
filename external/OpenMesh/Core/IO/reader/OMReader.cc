@@ -211,6 +211,8 @@ bool _OMReader_::read_binary(std::istream& _is, BaseImporter& _bi, Options& _opt
         if (!read_binary_mesh_chunk(_is, _bi, _opt, swap))
           return false;
         break;
+      case OMFormat::Chunk::Entity_Sentinel:
+        return true;
       default:
         return false;
     }

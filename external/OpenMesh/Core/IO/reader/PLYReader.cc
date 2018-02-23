@@ -1077,7 +1077,7 @@ bool _PLYReader_::can_u_read(std::istream& _is) const {
     trim(line);
 
     // Handle '\r\n' newlines 
-    const int s = line.size(); 
+    const size_t s = line.size();
     if( s > 0 && line[s - 1] == '\r') line.resize(s - 1); 
 
     //Check if this file is really a ply format
