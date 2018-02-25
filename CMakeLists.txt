@@ -30,7 +30,7 @@ endif()
 # Detect OpenMP environment
 set(OPENMP ON CACHE BOOL "OpenMP")
 if(OPENMP)
-  FIND_PACKAGE(OpenMP QUIET)
+  find_package(OpenMP QUIET)
   if(OPENMP_FOUND)
       message("OpenMP found. OpenMP activated in release.")
       add_definitions(-DUSE_OPENMP)
@@ -41,15 +41,10 @@ if(OPENMP)
 endif()
 
 
-# Detect Eigen3 in the external folder
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/external/eigen/Eigen/Dense)
-  message("Found user-provided Eigen.")
-  set(EIGEN3_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/eigen")
-else()
-  find_package(Eigen3 REQUIRED)
-  if(EIGEN3_FOUND)
-    message("Found system-installed Eigen: ${EIGEN3_INCLUDE_DIR}")
-  endif()
+# Detect Eigen3
+find_package(Eigen3 3.3 REQUIRED)
+if(EIGEN3_FOUND)
+  message("Found external Eigen. include: ${EIGEN3_INCLUDE_DIR}, version: ${EIGEN3_VERSION_STRING}.")
 endif()
 
 
@@ -65,8 +60,12 @@ add_definitions(-DOM_STATIC_BUILD)
 add_library(MeshSDLibrary INTERFACE)
 target_include_directories(MeshSDLibrary INTERFACE
                            ${CMAKE_CURRENT_SOURCE_DIR}
-                           ${EIGEN3_INCLUDE_DIR})
-target_link_libraries(MeshSDLibrary INTERFACE OpenMesh)
+)
+target_link_libraries(MeshSDLibrary
+    INTERFACE
+      OpenMesh
+      Eigen3::Eigen
+)
 
 
 # Executable for filtering
@@ -77,8 +76,7 @@ add_executable(MeshSDFilter
   MeshNormalFilter.h
   MeshSDFilter.cpp
 )
-target_link_libraries(MeshSDFilter OpenMesh)
-target_include_directories(MeshSDFilter SYSTEM PUBLIC "${EIGEN3_INCLUDE_DIR}")
+target_link_libraries(MeshSDFilter MeshSDLibrary)
 
 
 # Executable for denoising
@@ -90,8 +88,7 @@ add_executable(MeshDenoiser
   MeshNormalDenoising.h
   MeshDenoiser.cpp
 )
-target_link_libraries(MeshDenoiser OpenMesh)
-target_include_directories(MeshDenoiser SYSTEM PUBLIC "${EIGEN3_INCLUDE_DIR}")
+target_link_libraries(MeshDenoiser MeshSDLibrary)
 
 
 if(OPENMP_FOUND)
