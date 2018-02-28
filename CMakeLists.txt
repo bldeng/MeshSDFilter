@@ -42,9 +42,11 @@ endif()
 
 
 # Detect Eigen3
-find_package(Eigen3 3.3 REQUIRED)
-if(EIGEN3_FOUND)
-  message("Found external Eigen. include: ${EIGEN3_INCLUDE_DIR}, version: ${EIGEN3_VERSION_STRING}.")
+if(NOT EIGEN3_FOUND)
+  find_package(Eigen3 REQUIRED)
+  if(EIGEN3_FOUND)
+    message("Found external Eigen. include: ${EIGEN3_INCLUDE_DIR}, version: ${EIGEN3_VERSION_STRING}.")
+  endif()
 endif()
 
 
