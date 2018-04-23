@@ -57,7 +57,7 @@ file(GLOB_RECURSE OPENMESH_SOURCES "${OPENMESH_SOURCE_DIR}/Core/*.cc" "${OPENMES
 add_library(OpenMesh STATIC ${OPENMESH_HEADERS} ${OPENMESH_SOURCES})
 target_include_directories(OpenMesh PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/external")
 
-add_definitions(-DOM_STATIC_BUILD)
+target_compile_definitions(OpenMesh PUBLIC OM_STATIC_BUILD)
 
 add_library(MeshSDLibrary INTERFACE)
 target_include_directories(MeshSDLibrary INTERFACE
