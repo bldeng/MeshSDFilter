@@ -57,7 +57,7 @@ public:
 	enum MeshUpdateMethod
 	{
 		ITERATIVE_UPDATE,	// ShapeUp styled iterative solver
-		POISSON_UPDATE,	// Poisson-based update from [Want et al. 2015]
+		POISSON_UPDATE,	// Poisson-based update from [Wang et al. 2015]
 	};
 
 	MeshUpdateMethod mesh_update_method;
