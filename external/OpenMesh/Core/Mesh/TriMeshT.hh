@@ -169,6 +169,10 @@ public:
 
   /// Default constructor
   TriMeshT() : PolyMesh() {}
+  explicit TriMeshT(PolyMesh rhs) : PolyMesh((rhs.triangulate(), rhs))
+  {
+  }
+
   /// Destructor
   virtual ~TriMeshT() {}
 

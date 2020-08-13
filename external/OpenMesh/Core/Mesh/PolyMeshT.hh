@@ -186,6 +186,8 @@ public:
 
   // --- constructor/destructor
   PolyMeshT() {}
+  template<typename T>
+  explicit PolyMeshT(const T& t) : Kernel(t) {}
   virtual ~PolyMeshT() {}
 
   /** Uses default copy and assignment operator.
@@ -405,6 +407,22 @@ public:
     Normal edge_vec;
     calc_edge_vector(_heh, edge_vec);
     return edge_vec.sqrnorm();
+  }
+
+  /** Calculates the midpoint of the halfedge _heh, defined by the positions of
+      the two incident vertices */
+  Point calc_edge_midpoint(HalfedgeHandle _heh) const
+  {
+    VertexHandle vh0 = this->from_vertex_handle(_heh);
+    VertexHandle vh1 = this->to_vertex_handle(_heh);
+    return 0.5 * (this->point(vh0) + this->point(vh1));
+  }
+
+  /** Calculates the midpoint of the edge _eh, defined by the positions of the
+      two incident vertices */
+  Point calc_edge_midpoint(EdgeHandle _eh) const
+  {
+    return calc_edge_midpoint(this->halfedge_handle(_eh, 0));
   }
 
   /** defines a consistent representation of a sector geometry:

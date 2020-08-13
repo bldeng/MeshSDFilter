@@ -182,8 +182,8 @@ class VectorT {
             typename = typename std::enable_if<
                 std::is_convertible<OtherScalar, Scalar>::value>>
         vector_type& operator=(const VectorT<OtherScalar, DIM>& _rhs) {
-            std::transform(_rhs.data(), _rhs.data() + DIM,
-                    data(), [](OtherScalar rhs) {
+            std::transform(_rhs.cbegin(), _rhs.cend(),
+                    this->begin(), [](OtherScalar rhs) {
                         return static_cast<Scalar>(std::move(rhs));
                     });
             return *this;
@@ -193,7 +193,7 @@ class VectorT {
         Scalar* data() { return values_.data(); }
 
         /// access to const Scalar array
-        const Scalar *data() const { return values_.data(); }
+        const Scalar* data() const { return values_.data(); }
 
         //----------------------------------------------------------- element access
 
@@ -382,8 +382,8 @@ class VectorT {
         auto operator|(const VectorT<OtherScalar, DIM>& _rhs) const ->
             decltype(*this->data() * *_rhs.data()) {
 
-            return std::inner_product(data() + 1, data() + DIM, _rhs.data() + 1,
-                    *data() * *_rhs.data());
+            return std::inner_product(begin() + 1, begin() + DIM, _rhs.begin() + 1,
+                    *begin() * *_rhs.begin());
         }
 
         //------------------------------------------------------------ euclidean norm
@@ -604,7 +604,7 @@ class VectorT {
         template<typename Functor>
         inline vector_type apply(const Functor& _func) const {
             vector_type result;
-            std::transform(result.values_.begin(), result.values_.end(),
+            std::transform(result.values_.cbegin(), result.values_.cend(),
                     result.values_.begin(), _func);
             return result;
         }

@@ -583,6 +583,18 @@ public:
 
   }
 
+  /**
+   * @brief copy_all_kernel_properties uses the = operator to copy all properties from a given other BaseKernel.
+   * @param _other Another BaseKernel, to copy the properties from.
+   */
+  void copy_all_kernel_properties(const BaseKernel & _other)
+  {
+    this->vprops_ = _other.vprops_;
+    this->eprops_ = _other.eprops_;
+    this->hprops_ = _other.hprops_;
+    this->fprops_ = _other.fprops_;
+  }
+
 protected: //------------------------------------------------- low-level access
 
 public: // used by non-native kernel and MeshIO, should be protected

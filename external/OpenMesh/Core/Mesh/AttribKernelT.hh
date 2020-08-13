@@ -211,17 +211,24 @@ public:
       elements from traits classes) is not copied.
       \note If you want to copy all information, including *custom* properties,
       use PolyMeshT::operator=() instead.
-      TODO: version which copies standard properties specified by the user
   */
   template <class _AttribKernel>
-  void assign(const _AttribKernel& _other)
+  void assign(const _AttribKernel& _other, bool copyStandardProperties = false)
   {
+    //copy standard properties if necessary
+    if(copyStandardProperties)
+      this->copy_all_kernel_properties(_other);
+
     this->assign_connectivity(_other);
     for (typename Connectivity::VertexIter v_it = Connectivity::vertices_begin();
          v_it != Connectivity::vertices_end(); ++v_it)
     {//assumes Point constructor supports cast from _AttribKernel::Point
       set_point(*v_it, (Point)_other.point(*v_it));
     }
+
+    //initialize standard properties if necessary
+    if(copyStandardProperties)
+        initializeStandardProperties();
   }
 
   //-------------------------------------------------------------------- points
@@ -725,6 +732,61 @@ private:
   unsigned int                              refcount_fnormals_;
   unsigned int                              refcount_fcolors_;
   unsigned int                              refcount_ftextureIndex_;
+
+  /**
+   * @brief initializeStandardProperties Initializes the standard properties
+   * and sets refcount to 1 if found. (e.g. when the copy constructor was used)
+   */
+  void initializeStandardProperties()
+  {
+      if(!this->get_property_handle(points_,
+               "v:points"))
+      {
+          //mesh has no points?
+      }
+      if(this->get_property_handle(vertex_normals_,
+               "v:normals"))
+          refcount_vnormals_ = 1;
+      if(this->get_property_handle(vertex_colors_,
+               "v:colors"))
+          refcount_vcolors_ = 1;
+      if(this->get_property_handle(vertex_texcoords1D_,
+               "v:texcoords1D"))
+          refcount_vtexcoords1D_ = 1;
+      if(this->get_property_handle(vertex_texcoords2D_,
+               "v:texcoords2D"))
+          refcount_vtexcoords2D_ = 1;
+      if(this->get_property_handle(vertex_texcoords3D_,
+               "v:texcoords3D"))
+          refcount_vtexcoords3D_ = 1;
+      if(this->get_property_handle(halfedge_texcoords1D_,
+               "h:texcoords1D"))
+          refcount_htexcoords1D_ = 1;
+      if(this->get_property_handle(halfedge_texcoords2D_,
+               "h:texcoords2D"))
+          refcount_htexcoords2D_ = 1;
+      if(this->get_property_handle(halfedge_texcoords3D_,
+               "h:texcoords3D"))
+          refcount_htexcoords3D_ = 1;
+      if(this->get_property_handle(halfedge_normals_,
+               "h:normals"))
+          refcount_henormals_ = 1;
+      if(this->get_property_handle(halfedge_colors_,
+               "h:colors"))
+          refcount_hecolors_ = 1;
+      if(this->get_property_handle(edge_colors_,
+               "e:colors"))
+          refcount_ecolors_ = 1;
+      if(this->get_property_handle(face_normals_,
+               "f:normals"))
+          refcount_fnormals_ = 1;
+      if(this->get_property_handle(face_colors_,
+               "f:colors"))
+          refcount_fcolors_ = 1;
+      if(this->get_property_handle(face_texture_index_,
+               "f:textureindex"))
+          refcount_ftextureIndex_ = 1;
+  }
 };
 
 //=============================================================================

@@ -180,6 +180,12 @@ public:
     return *this;
   }
 
+  QuadricT<Scalar> operator+(const QuadricT<Scalar>& _other ) const
+  {
+    QuadricT<Scalar> result = *this;
+    return result += _other;
+  }
+
 
   /// multiply by scalar
   QuadricT<Scalar>& operator*=( Scalar _s)
@@ -191,6 +197,11 @@ public:
     return *this;
   }
 
+  QuadricT<Scalar> operator*(Scalar _s) const
+  {
+    QuadricT<Scalar> result = *this;
+    return result *= _s;
+  }
 
   /// multiply 4D vector from right: Q*v
   template <class _Vec4>

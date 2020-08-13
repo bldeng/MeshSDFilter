@@ -179,7 +179,8 @@ namespace OMFormat {
       Entity_Mesh      = 0x01,
       Entity_Face      = 0x02,
       Entity_Edge      = 0x04,
-      Entity_Halfedge  = 0x06
+      Entity_Halfedge  = 0x06,
+      Entity_Sentinel  = 0x07
     };
 
     enum Dim {
@@ -399,7 +400,9 @@ namespace OMFormat {
   template <typename T> Chunk::Integer_Size integer_size(const T& d)
 #endif
   {
+#ifndef NDEBUG
     assert( is_integer(d) );
+#endif
 
     switch( sizeof(T) )
     {
@@ -423,7 +426,9 @@ namespace OMFormat {
   template <typename T> Chunk::Float_Size float_size(const T& d)
 #endif
   {
+#ifndef NDEBUG
     assert( is_float(d) );
+#endif
 
     switch( sizeof(T) )
     {

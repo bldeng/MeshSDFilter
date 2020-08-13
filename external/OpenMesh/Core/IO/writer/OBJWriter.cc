@@ -257,6 +257,42 @@ write(std::ostream& _out, BaseExporter& _be, Options _opt, std::streamsize _prec
   if (useMatrial &&  _opt.check(Options::FaceColor) )
     _out << "mtllib " << objName_ << ".mat" << '\n';
 
+  std::map<Vec2f,int> texMap;
+  //collect Texturevertices from halfedges
+  if(_opt.check(Options::FaceTexCoord))
+  {
+    std::vector<Vec2f> texCoords;
+    //add all texCoords to map
+    unsigned int num = _be.get_face_texcoords(texCoords);
+    for(unsigned int i = 0; i < num ; ++i)
+    {
+      texMap[texCoords[i]] = i;
+    }
+  }
+
+  //collect Texturevertices from vertices
+  if(_opt.check(Options::VertexTexCoord))
+  {
+    for (size_t i=0, nF=_be.n_faces(); i<nF; ++i)
+    {
+      vh = VertexHandle(static_cast<int>(i));
+      t  = _be.texcoord(vh);
+      texMap[t] = static_cast<int>(i);
+    }
+  }
+
+  // assign each texcoord in the map its id
+  // and write the vt entries
+  if(_opt.check(Options::VertexTexCoord) || _opt.check(Options::FaceTexCoord))
+  {
+    int texCount = 0;
+    for(std::map<Vec2f,int>::iterator it = texMap.begin(); it != texMap.end() ; ++it)
+    {
+      _out << "vt " << it->first[0] << " " << it->first[1] << '\n';
+      it->second = ++texCount;
+    }
+  }
+
   // vertex data (point, normals, texcoords)
   for (i=0, nV=_be.n_vertices(); i<nV; ++i)
   {
@@ -268,17 +304,15 @@ write(std::ostream& _out, BaseExporter& _be, Options _opt, std::streamsize _prec
     _out << "v " << v[0] <<" "<< v[1] <<" "<< v[2] << '\n';
 
     if (_opt.check(Options::VertexNormal))
-      _out << "vn " << n[0] <<" "<< n[1] <<" "<< n[2] << '\n';
-
-    if (_opt.check(Options::VertexTexCoord))
-      _out << "vt " << t[0] <<" "<< t[1] << '\n';
+      _out << "vn " << n[0] <<" "<< n[1] <<" "<< n[2] << '\n';    
   }
 
   size_t lastMat = std::numeric_limits<std::size_t>::max();
 
   // we do not want to write seperators if we only write vertex indices
   bool onlyVertices =    !_opt.check(Options::VertexTexCoord)
-                      && !_opt.check(Options::VertexNormal);
+                      && !_opt.check(Options::VertexNormal)
+                      && !_opt.check(Options::FaceTexCoord);
 
   // faces (indices starting at 1 not 0)
   for (i=0, nF=_be.n_faces(); i<nF; ++i)
@@ -319,9 +353,18 @@ write(std::ostream& _out, BaseExporter& _be, Options _opt, std::streamsize _prec
         // write separator
         _out << "/" ;
 
-        // write vertex texture coordinate index
-        if (_opt.check(Options::VertexTexCoord))
-          _out  << idx;
+        //write texCoords index from halfedge
+        if(_opt.check(Options::FaceTexCoord))
+        {
+          _out << texMap[_be.texcoord(_be.getHeh(FaceHandle(int(i)),vhandles[j]))];
+        }
+
+        else
+        {
+          // write vertex texture coordinate index
+          if (_opt.check(Options::VertexTexCoord))
+            _out  << texMap[_be.texcoord(vh)];
+        }
 
         // write vertex normal index
         if ( _opt.check(Options::VertexNormal) ) {
